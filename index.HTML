@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ศูนย์รวมระบบงานออนไลน์ - โรงเรียนบ้านหนองโสน</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        /* สไตล์ทั่วไป */
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; text-align: center; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        /* สไตล์หน้าจอ Login */
+        .box { background: white; padding: 40px 30px; border-radius: 16px; max-width: 400px; margin: 60px auto 20px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        .logo { width: 130px; height: auto; margin-bottom: 20px; object-fit: contain; }
+        h2 { color: #2c3e50; margin-bottom: 25px; font-size: 22px; }
+        input, button { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
+        input:focus { border-color: #3498db; outline: none; }
+        
+        /* ปุ่มต่างๆ */
+        button { background: #3498db; color: white; border: none; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+        button:hover { background: #2980b9; }
+        .btn-logout { background: #e74c3c; width: auto; padding: 8px 18px; font-size: 15px; }
+        .btn-logout:hover { background: #c0392b; }
+        
+        /* หน้าหลักและการจัดวางปุ่มระบบงาน */
+        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #ddd; padding-bottom: 15px; }
+        .header-section h1 { color: #2c3e50; margin: 0; font-size: 24px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { background: white; padding: 30px 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-decoration: none; color: #333; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; border: 2px solid transparent; }
+        .card:hover { transform: translateY(-5px); border-color: #3498db; box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .icon { font-size: 50px; margin-bottom: 15px; }
+        .title { font-weight: bold; font-size: 18px; }
+        
+        /* ส่วนจัดการของ Admin */
+        #admin-panel { background: #e8f4fd; padding: 20px; border-radius: 12px; margin-bottom: 30px; text-align: left; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+        #admin-panel h3 { margin-top: 0; color: #2c3e50; }
+        .admin-form { display: flex; flex-wrap: wrap; gap: 10px; }
+        .admin-input { padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; }
+        
+        /* คลาสสลับการแสดงผล */
+        .hidden { display: none !important; }
+        
+        /* ส่วนท้ายเครดิต (Copyright) */
+        .footer { font-size: 13px; color: #7f8c8d; margin-top: 50px; padding: 20px 0; line-height: 1.6; border-top: 1px solid #e0e0e0; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen" class="box">
+        <img src="https://lh3.googleusercontent.com/d/15guVCjLP1EGwc0Oxa8wcMGmpSeLtlWLL" alt="โลโก้โรงเรียนบ้านหนองโสน" class="logo">
+        <h2>เข้าสู่ระบบใช้งาน Hub</h2>
+        <input type="text" id="username" placeholder="ชื่อผู้ใช้งาน">
+        <input type="password" id="password" placeholder="รหัสผ่าน">
+        <button onclick="handleLogin()">เข้าสู่ระบบ</button>
+    </div>
+
+    <div id="main-screen" class="container hidden">
+        <div class="header-section">
+            <h1>ศูนย์รวมระบบงานออนไลน์</h1>
+            <button onclick="handleLogout()" class="btn-logout">ออกจากระบบ 🚪</button>
+        </div>
+
+        <div id="admin-panel" class="hidden">
+            <h3>🛠️ ส่วนจัดการระบบ (เฉพาะผู้ดูแลระบบ)</h3>
+            <div class="admin-form">
+                <input type="text" id="new-title" class="admin-input" placeholder="ชื่อระบบงาน เช่น ระบบพัสดุ" style="flex: 2;">
+                <input type="text" id="new-url" class="admin-input" placeholder="วางลิงก์เว็บแอปที่นี่ https://..." style="flex: 3;">
+                <input type="text" id="new-icon" class="admin-input" placeholder="ใส่อีโมจิไอคอน เช่น 📦" style="flex: 1;">
+                <button onclick="addNewLink()" style="width: auto; padding: 10px 20px; margin: 0;">+ เพิ่มระบบ</button>
+            </div>
+        </div>
+
+        <div class="grid" id="app-grid">
+            </div>
+    </div>
+
+    <div class="footer">
+        ผู้พัฒนาระบบสารสนเทศโรงเรียนบ้านหนองโสน<br>
+        นายชัยณรงค์ จำปา ครูโรงเรียนบ้านหนองโสน
+    </div>
+
+    <script>
+        // ⚠️ สำคัญ: ครูชัยณรงค์อย่าลืมนำ URL ที่ได้จาก Google Apps Script (Web App) มาวางในเครื่องหมายคำพูดด้านล่างนี้นะครับ
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby1GhNi_4jePLpSsmCL-IHTWofwdMNgtX96rUDlbW34N0wrvAOm_qcA4XC8ZL7o-OyQVQ/exec";
+
+        window.onload = function() {
+            const role = localStorage.getItem('userRole');
+            if (role) { showMainScreen(role); }
+        }
+
+        function callAPI(data) {
+            return fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify(data) }).then(res => res.json());
+        }
+
+        function handleLogin() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            
+            if(!user || !pass) return alert("กรุณากรอกชื่อผู้ใช้และรหัสผ่านให้ครบถ้วน");
+
+            callAPI({ action: "login", username: user, password: pass }).then(res => {
+                if(res.success) {
+                    alert("✅ เข้าสู่ระบบสำเร็จ ยินดีต้อนรับครับ"); // Pop up สำเร็จ
+                    localStorage.setItem('userRole', res.role);
+                    showMainScreen(res.role);
+                } else {
+                    alert("❌ เข้าสู่ระบบไม่สำเร็จ: " + res.message); // Pop up ไม่สำเร็จ
+                }
+            }).catch(err => {
+                alert("เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล");
+            });
+        }
+
+        function showMainScreen(role) {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-screen').classList.remove('hidden');
+            if (role === 'admin') { 
+                document.getElementById('admin-panel').classList.remove('hidden'); 
+            }
+            loadLinks();
+        }
+
+        function loadLinks() {
+            const grid = document.getElementById('app-grid');
+            grid.innerHTML = "กำลังโหลดระบบงานจากฐานข้อมูล...";
+            
+            callAPI({ action: "getLinks" }).then(res => {
+                grid.innerHTML = "";
+                if(res.success) {
+                    res.data.forEach(sys => {
+                        const a = document.createElement('a');
+                        a.href = sys.url; 
+                        a.target = "_blank"; 
+                        a.className = "card";
+                        a.innerHTML = `<div class="icon">${sys.icon}</div><div class="title">${sys.title}</div>`;
+                        grid.appendChild(a);
+                    });
+                }
+            });
+        }
+
+        function addNewLink() {
+            const title = document.getElementById('new-title').value;
+            const url = document.getElementById('new-url').value;
+            const icon = document.getElementById('new-icon').value || "🔗";
+            
+            if(!title || !url) return alert("กรุณากรอกข้อมูลชื่อระบบและลิงก์ให้ครบถ้วน");
+
+            callAPI({ action: "addLink", title: title, url: url, icon: icon }).then(res => {
+                if(res.success) {
+                    alert("🎉 เพิ่มปุ่มระบบงานใหม่เรียบร้อยแล้ว!");
+                    document.getElementById('new-title').value = ''; 
+                    document.getElementById('new-url').value = ''; 
+                    document.getElementById('new-icon').value = '';
+                    loadLinks();
+                }
+            });
+        }
+
+        // ฟังก์ชันเมื่อกดปุ่มออกจากระบบ
+        function handleLogout() {
+            localStorage.clear();
+            alert("🚪 ออกจากระบบเรียบร้อยแล้ว");
+            location.reload();
+        }
+
+        if ('serviceWorker' in navigator) { 
+            navigator.serviceWorker.register('sw.js'); 
+        }
+    </script>
+</body>
+</html>
